@@ -27,7 +27,7 @@ This project builds one connected path:
 | Stage | AWC experience | What happens |
 |---|---|---|
 | Generate | Data generator app | Serves dummy bank and call-center records over an HTTP API |
-| Ingest | Cloudera DataFlow (NiFi) | InvokeHTTP pulls the records and writes them to S3 |
+| Ingest | Cloudera DataFlow (NiFi) | InvokeHTTP pulls the records and writes them to S3 after converting to Parquet |
 | Store | Amazon S3 or Cloudera Object Store (Ozone) | Single copy of the data |
 | Catalog | AWS Glue Data Catalog | External metastore holding databases and tables |
 | Query | Cloudera Lakehouse Engine (Trino) | Reads Glue metadata and S3 data through the Hive connector |
