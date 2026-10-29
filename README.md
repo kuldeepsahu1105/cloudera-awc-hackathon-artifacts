@@ -18,6 +18,8 @@ Every Cloudera service runs as its own AWC experience. All data stays in one pla
 
 ---
 
+   ![Architecture](images/architecture.png)
+
 ## 1. What this project does
 
 Bank branch teams need to see how every branch performs: revenue contribution, transaction times by type, channel preferences, customer status, seasonality and call-center load. The source data arrives as streaming records from a dummy generator and is assembled into a single, queryable analytics layer.
