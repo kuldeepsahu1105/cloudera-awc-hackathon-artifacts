@@ -321,6 +321,8 @@ An existing Glue Data Catalog is used. Nothing is created here by hand:
 3. Check the DAG settings: the CDE job name (`CallcenterInteractionSummary`), the Airflow connection to Cloudera Data Engineering, and the **schedule**.
 4. Unpause the DAG and confirm the first scheduled run triggers the Spark job.
 
+   ![DAG Job Run](images/cwo_dag.png)
+
 ### Step 8. Connect Cloudera Data Visualization to Trino
 
 **8a. Get an access token.** The connection uses JWT authentication.
@@ -357,6 +359,7 @@ Click **Test**, then **Save**.
 3. Open **Branch Performance Dashboard** and check that filters (branch name, record date) and charts load. It includes tabs for general analysis, department-wise analysis and call-center summary.
 
    ![Branch Performance Dashboard](images/cdv-branch-dashboard.png)
+   ![AI Visual Dashboard](images/cdv_ai_visual.png)
 
 ### Step 10. Deploy the AI model and enable AI Visual
 
