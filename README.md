@@ -1,8 +1,8 @@
 # Project Axon on Cloudera Anywhere Cloud: Bank Branch Performance Analytics (Amazon S3 + AWS Glue)
 
-An end-to-end analytics pipeline on **Cloudera Anywhere Cloud (AWC)** that turns raw bank branch and call-center data into governed tables, scheduled summaries, BI dashboards and AI-assisted insight.
+An end-to-end analytics pipeline on **Cloudera Anywhere Cloud (AWC)** that turns raw bank branch and call-center data into governed tables, scheduled summaries, BI dashboards and AI-assisted insights.
 
-Every Cloudera service runs as its own AWC experience. All data stays in one place, either **Amazon S3** or **Cloudera Object Store (COS, Ozone-based)**, and all metadata stays in one place, the **AWS Glue Data Catalog**. Nothing is copied between systems. Both storage options were tested; the steps below mark where they differ.
+Every Cloudera service runs as its own AWC experience. All data stays in one place, either **Amazon S3** or **Cloudera Object Store (COS, Ozone-based)**, and all metadata stays in one place, the **AWS Glue Data Catalog**.
 
 ---
 
@@ -20,7 +20,7 @@ Every Cloudera service runs as its own AWC experience. All data stays in one pla
 
 ## 1. What this project does
 
-Bank branch teams need to see how every branch performs: revenue contribution, transaction times by type, channel preferences, customer status, seasonality and call-center load. The source data arrives as JSON from separate systems, so it is scattered and hard to query together.
+Bank branch teams need to see how every branch performs: revenue contribution, transaction times by type, channel preferences, customer status, seasonality and call-center load. The source data arrives as streaming records from a dummy generator and is assembled into a single, queryable analytics layer.
 
 This project builds one connected path:
 
@@ -87,7 +87,7 @@ flowchart LR
 
 ### Step 1. Deploy the dummy data generator
 
-The data comes from the dummy data generator app of Cloudera's **Project Axon** (`cloudera/End2EndLabs`, folder `Project-Axon/assets`). It runs on a plain Linux server and exposes the HTTP endpoints that DataFlow calls in step 2.
+The data comes from the dummy data generator app of Cloudera's **Project Axon** (`cloudera/End2EndLabs`, folder `Project-Axon/assets`). It runs on a plain Linux server and exposes the HTTP endpoints used by DataFlow.
 
 **1a. Linux server**
 
@@ -154,7 +154,7 @@ Note the server IP and the port and path of each endpoint the flow will call (fo
 ### Step 2. Ingest with Cloudera DataFlow into S3
 
 1. Open the **Cloudera DataFlow** (Flow Management / NiFi) canvas.
-2. Upload the combined flow from `CDF/` (flow definition JSON). It creates the process group `Project-axon-banking` with the `callcenter-flows` sub-group, which contains the `InvokeHTTP` processor for call-center interactions.
+2. Upload the combined flow from `CDF/` (flow definition JSON). It creates the process group `Project-axon-banking` with the `callcenter-flows` sub-group, which contains the `InvokeHTTP` processors and `PutS3Object`.
 3. Create or edit the **parameter context** and set:
 
    | Parameter | Value |
@@ -191,7 +191,7 @@ Note the server IP and the port and path of each endpoint the flow will call (fo
 
 #### Storage target: Amazon S3 or Cloudera Object Store (Ozone)
 
-The same flow can write to **Cloudera Object Store (COS)** instead of Amazon S3. COS is Ozone-based and exposes an S3-compatible endpoint, so `PutS3Object` is reused and only the connection settings change:
+The same flow can write to **Cloudera Object Store (COS)** instead of Amazon S3. COS is Ozone-based and exposes an S3-compatible endpoint, so `PutS3Object` is reused and only the connection settings change.
 
 | Setting on `PutS3Object` / credentials service | Amazon S3 | Cloudera Object Store (Ozone) |
 |---|---|---|
@@ -313,8 +313,13 @@ An existing Glue Data Catalog is used. Nothing is created here by hand:
 ### Step 7. Schedule it with Cloudera Workflow Orchestrator (Airflow)
 
 1. Open **Cloudera Workflow Orchestrator** and upload the DAG file from `CWO/`.
-2. Check the DAG settings: the CDE job name (`CallcenterInteractionSummary`), the Airflow connection to Cloudera Data Engineering, and the **schedule**.
-3. Unpause the DAG and confirm the first scheduled run triggers the Spark job.
+2. Before the DAG can run, create the required Airflow connections in **CWO**:
+
+   - `awc-cde`: create a connection for **CWO → CDE** communication. Provide the **CDE Jobs API URL** so the Airflow DAG can trigger and monitor the CDE Spark job.
+   - `aws_glue`: create a connection for **CWO → AWS Glue** communication. Provide the **AWS access key ID**, **AWS secret access key**, and **AWS region** used by the Glue catalog.
+
+3. Check the DAG settings: the CDE job name (`CallcenterInteractionSummary`), the Airflow connection to Cloudera Data Engineering, and the **schedule**.
+4. Unpause the DAG and confirm the first scheduled run triggers the Spark job.
 
 ### Step 8. Connect Cloudera Data Visualization to Trino
 
@@ -390,7 +395,7 @@ Click **Test**, then **Save**.
 
 ## 6. Security notes
 
-- **Never commit real credentials.** This README uses placeholders such as `<AWS_ACCESS_KEY_ID>`. Keep real values in NiFi sensitive properties, Lakehouse Engine configuration, CDE secrets or a secrets manager.
+- **Never commit real credentials.** This README uses placeholders such as `<AWS_ACCESS_KEY_ID>`. Keep real values in NiFi sensitive properties, Lakehouse Engine configuration, CDE secrets or a secure secret store instead of the repo.
 - **Redact screenshots** before committing. Cover access keys, secret keys, account IDs, JWT tokens and API keys.
 - Prefer an **IAM role with least privilege** over long-lived access keys where your environment supports it.
 - Rotate any key that was ever shown in a screenshot, chat or commit.
