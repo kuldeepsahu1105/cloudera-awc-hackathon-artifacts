@@ -1,0 +1,4 @@
+Model Deployed from Hugging Face in Cloudera AI Registry:  Qwen/Qwen2.5-7B-Instruct
+
+Arguments working for the model:
+--dtype half --tensor-parallel-size 1 --max-model-len 8192 --gpu-memory-utilization 0.85 --enforce-eager --enable-prefix-caching --enable-chunked-prefill --max-num-batched-tokens 1024

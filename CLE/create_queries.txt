@@ -1,0 +1,448 @@
+-- Updated for the Trino Glue catalog and S3 data prefix.
+-- Review that each S3 folder exists before running.
+
+-- ==========================================================
+-- Schema: nps_data
+-- ==========================================================
+
+CREATE SCHEMA IF NOT EXISTS glue.nps_data;
+
+DROP TABLE IF EXISTS glue.nps_data.nps_responses;
+
+CREATE TABLE glue.nps_data.nps_responses (
+  Comment VARCHAR,
+  CustomerID VARCHAR,
+  ResponseID VARCHAR,
+  SatisfactionLevel VARCHAR,
+  Score INTEGER,
+  SurveyChannel VARCHAR,
+  SurveyDate VARCHAR
+)
+WITH (
+  format = 'PARQUET',
+  external_location = 's3://ccf-psecoe-ccf-artifacts/s3_flow_data/NPS/nps-responses'
+);
+
+-- ==========================================================
+-- Schema: campaign_details
+-- ==========================================================
+
+CREATE SCHEMA IF NOT EXISTS glue.campaign_details;
+
+DROP TABLE IF EXISTS glue.campaign_details.campaign_details;
+
+CREATE TABLE glue.campaign_details.campaign_details (
+  Budget DOUBLE,
+  CampaignID INTEGER,
+  CampaignName VARCHAR,
+  Channel VARCHAR,
+  EndDate VARCHAR,
+  SeasonID INTEGER,
+  StartDate VARCHAR,
+  Status VARCHAR
+)
+WITH (
+  format = 'PARQUET',
+  external_location = 's3://ccf-psecoe-ccf-artifacts/s3_flow_data/MCL/campaign-details'
+);
+
+DROP TABLE IF EXISTS glue.campaign_details.campaign_performance;
+
+CREATE TABLE glue.campaign_details.campaign_performance (
+  AverageScore DOUBLE,
+  CampaignID INTEGER,
+  ClickThroughRate DOUBLE,
+  ConversionRate DOUBLE,
+  PerformanceID VARCHAR,
+  RevenueGenerated DOUBLE,
+  SalesVolume INTEGER,
+  TotalResponses INTEGER
+)
+WITH (
+  format = 'PARQUET',
+  external_location = 's3://ccf-psecoe-ccf-artifacts/s3_flow_data/MCL/campaign-performance'
+);
+
+DROP TABLE IF EXISTS glue.campaign_details.sales_seasonality;
+
+CREATE TABLE glue.campaign_details.sales_seasonality (
+  CustomerRetentionRate DOUBLE,
+  RevenueGenerated DOUBLE,
+  SalesVolume INTEGER,
+  SeasonID INTEGER,
+  SeasonName VARCHAR
+)
+WITH (
+  format = 'PARQUET',
+  external_location = 's3://ccf-psecoe-ccf-artifacts/s3_flow_data/MCL/sales-seasonality'
+);
+
+DROP TABLE IF EXISTS glue.campaign_details.customer_campaign;
+
+CREATE TABLE glue.campaign_details.customer_campaign (
+  campaign_id INTEGER,
+  customer_campaign_id INTEGER,
+  customer_id INTEGER,
+  enrolled_at VARCHAR
+)
+WITH (
+  format = 'PARQUET',
+  external_location = 's3://ccf-psecoe-ccf-artifacts/s3_flow_data/MCL/customer-campaign'
+);
+
+-- ==========================================================
+-- Schema: frsdatabase
+-- ==========================================================
+
+CREATE SCHEMA IF NOT EXISTS glue.frsdatabase;
+
+DROP TABLE IF EXISTS glue.frsdatabase.revenue_data;
+
+CREATE TABLE glue.frsdatabase.revenue_data (
+  Amount DOUBLE,
+  BranchID INTEGER,
+  Description VARCHAR,
+  Record_Date VARCHAR,
+  RevenueID BIGINT,
+  RevenueType VARCHAR
+)
+WITH (
+  format = 'PARQUET',
+  external_location = 's3://ccf-psecoe-ccf-artifacts/s3_flow_data/frsdata/revenue'
+);
+
+DROP TABLE IF EXISTS glue.frsdatabase.expense_data;
+
+CREATE TABLE glue.frsdatabase.expense_data (
+  Amount DOUBLE,
+  BranchID INTEGER,
+  Description VARCHAR,
+  ExpenseID INTEGER,
+  ExpenseType VARCHAR,
+  Record_Date VARCHAR
+)
+WITH (
+  format = 'PARQUET',
+  external_location = 's3://ccf-psecoe-ccf-artifacts/s3_flow_data/frsdata/expense'
+);
+
+DROP TABLE IF EXISTS glue.frsdatabase.pnl_data;
+
+CREATE TABLE glue.frsdatabase.pnl_data (
+  BranchID INTEGER,
+  NetProfitLoss DOUBLE,
+  PnLID BIGINT,
+  ProfitMargin DOUBLE,
+  Record_Date VARCHAR,
+  TotalExpense DOUBLE,
+  TotalRevenue DOUBLE
+)
+WITH (
+  format = 'PARQUET',
+  external_location = 's3://ccf-psecoe-ccf-artifacts/s3_flow_data/frsdata/profitnloss'
+);
+
+DROP TABLE IF EXISTS glue.frsdatabase.cashflow_data;
+
+CREATE TABLE glue.frsdatabase.cashflow_data (
+  BranchID INTEGER,
+  CashFlowID BIGINT,
+  CashInflow DOUBLE,
+  CashOutflow DOUBLE,
+  FinancingCashFlow DOUBLE,
+  InvestingCashFlow DOUBLE,
+  NetCashFlow DOUBLE,
+  OperatingCashFlow DOUBLE,
+  Record_Date VARCHAR
+)
+WITH (
+  format = 'PARQUET',
+  external_location = 's3://ccf-psecoe-ccf-artifacts/s3_flow_data/frsdata/cashflow'
+);
+
+
+-- ==========================================================
+-- Schema: core_banking_db
+-- ==========================================================
+
+CREATE SCHEMA IF NOT EXISTS glue.core_banking_db;
+
+DROP TABLE IF EXISTS glue.core_banking_db.customer;
+
+CREATE TABLE glue.core_banking_db.customer (
+  address VARCHAR,
+  city VARCHAR,
+  country VARCHAR,
+  created_at VARCHAR,
+  customer_id INTEGER,
+  customer_status VARCHAR,
+  customer_type VARCHAR,
+  dob VARCHAR,
+  email VARCHAR,
+  first_name VARCHAR,
+  gender VARCHAR,
+  kyc_status VARCHAR,
+  last_name VARCHAR,
+  phone VARCHAR,
+  postal_code VARCHAR,
+  relationship_manager_id INTEGER,
+  source VARCHAR,
+  state VARCHAR,
+  updated_at VARCHAR
+)
+WITH (
+  format = 'PARQUET',
+  external_location = 's3://ccf-psecoe-ccf-artifacts/s3_flow_data/CBS/customer'
+);
+
+DROP TABLE IF EXISTS glue.core_banking_db.account;
+
+CREATE TABLE glue.core_banking_db.account (
+  account_id INTEGER,
+  account_number INTEGER,
+  account_status VARCHAR,
+  account_type VARCHAR,
+  balance DOUBLE,
+  branch_id INTEGER,
+  created_at VARCHAR,
+  currency_type VARCHAR,
+  customer_id INTEGER,
+  interest_rate DOUBLE,
+  last_transaction_date VARCHAR
+)
+WITH (
+  format = 'PARQUET',
+  external_location = 's3://ccf-psecoe-ccf-artifacts/s3_flow_data/CBS/account'
+);
+
+DROP TABLE IF EXISTS glue.core_banking_db."transaction";
+
+CREATE TABLE glue.core_banking_db."transaction" (
+  account_number INTEGER,
+  amount DOUBLE,
+  branch_id INTEGER,
+  currency_type VARCHAR,
+  description VARCHAR,
+  transaction_date VARCHAR,
+  transaction_due_date VARCHAR,
+  transaction_id INTEGER,
+  transaction_mode VARCHAR,
+  transaction_reference_id VARCHAR,
+  transaction_status VARCHAR,
+  transaction_type VARCHAR
+)
+WITH (
+  format = 'PARQUET',
+  external_location = 's3://ccf-psecoe-ccf-artifacts/s3_flow_data/CBS/transaction'
+);
+
+DROP TABLE IF EXISTS glue.core_banking_db.feedback;
+
+CREATE TABLE glue.core_banking_db.feedback (
+  branch_id INTEGER,
+  customer_id INTEGER,
+  feedback_comment VARCHAR,
+  feedback_date VARCHAR,
+  feedback_id INTEGER,
+  feedback_rating INTEGER,
+  feedback_status VARCHAR,
+  feedback_type VARCHAR
+)
+WITH (
+  format = 'PARQUET',
+  external_location = 's3://ccf-psecoe-ccf-artifacts/s3_flow_data/CBS/feedback'
+);
+
+
+-- ==========================================================
+-- Schema: hrms
+-- ==========================================================
+
+CREATE SCHEMA IF NOT EXISTS glue.hrms;
+
+DROP TABLE IF EXISTS glue.hrms.hrms_employee;
+
+CREATE TABLE glue.hrms.hrms_employee (
+  branch_id INTEGER,
+  created_at VARCHAR,
+  department VARCHAR,
+  email VARCHAR,
+  employee_id INTEGER,
+  employee_status VARCHAR,
+  first_name VARCHAR,
+  hire_date VARCHAR,
+  last_name VARCHAR,
+  phone VARCHAR,
+  "position" VARCHAR,
+  salary DOUBLE,
+  updated_at VARCHAR
+)
+WITH (
+  format = 'PARQUET',
+  external_location = 's3://ccf-psecoe-ccf-artifacts/s3_flow_data/HRMS/employee'
+);
+
+DROP TABLE IF EXISTS glue.hrms.hrms_attendance;
+
+CREATE TABLE glue.hrms.hrms_attendance (
+  attendance_date VARCHAR,
+  attendance_id INTEGER,
+  attendance_status VARCHAR,
+  created_at VARCHAR,
+  employee_id INTEGER
+)
+WITH (
+  format = 'PARQUET',
+  external_location = 's3://ccf-psecoe-ccf-artifacts/s3_flow_data/HRMS/attendance'
+);
+
+DROP TABLE IF EXISTS glue.hrms.hrms_performance;
+
+CREATE TABLE glue.hrms.hrms_performance (
+  comments VARCHAR,
+  created_at VARCHAR,
+  employee_id INTEGER,
+  performance_id INTEGER,
+  performance_rating INTEGER,
+  review_date VARCHAR
+)
+WITH (
+  format = 'PARQUET',
+  external_location = 's3://ccf-psecoe-ccf-artifacts/s3_flow_data/HRMS/performance'
+);
+
+DROP TABLE IF EXISTS glue.hrms.hrms_time_tracking;
+
+CREATE TABLE glue.hrms.hrms_time_tracking (
+  created_at VARCHAR,
+  employee_id INTEGER,
+  hours_worked DOUBLE,
+  overtime_hours DOUBLE,
+  time_tracking_id INTEGER,
+  tracking_date VARCHAR,
+  time_tracking_status VARCHAR
+)
+WITH (
+  format = 'PARQUET',
+  external_location = 's3://ccf-psecoe-ccf-artifacts/s3_flow_data/HRMS/timetracking'
+);
+
+
+-- ==========================================================
+-- Schema: branch_management_db
+-- ==========================================================
+
+CREATE SCHEMA IF NOT EXISTS glue.branch_management_db;
+
+DROP TABLE IF EXISTS glue.branch_management_db.branches;
+
+CREATE TABLE glue.branch_management_db.branches (
+  branch_id INTEGER,
+  branch_name VARCHAR,
+  established_date VARCHAR,
+  ifsc_code VARCHAR,
+  location VARCHAR,
+  manager_id VARCHAR,
+  region VARCHAR
+)
+WITH (
+  format = 'PARQUET',
+  external_location = 's3://ccf-psecoe-ccf-artifacts/s3_flow_data/branch_mgmt/branches'
+);
+
+DROP TABLE IF EXISTS glue.branch_management_db.inventory;
+
+CREATE TABLE glue.branch_management_db.inventory (
+  branch_id INTEGER,
+  inventory_id VARCHAR,
+  product_id VARCHAR,
+  product_name VARCHAR,
+  status VARCHAR,
+  stock_quantity INTEGER,
+  stock_value DOUBLE,
+  unit_price DOUBLE
+)
+WITH (
+  format = 'PARQUET',
+  external_location = 's3://ccf-psecoe-ccf-artifacts/s3_flow_data/branch_mgmt/inventory'
+);
+
+DROP TABLE IF EXISTS glue.branch_management_db.assets;
+
+CREATE TABLE glue.branch_management_db.assets (
+  asset_id VARCHAR,
+  asset_type VARCHAR,
+  location VARCHAR,
+  purchase_date VARCHAR,
+  status VARCHAR
+)
+WITH (
+  format = 'PARQUET',
+  external_location = 's3://ccf-psecoe-ccf-artifacts/s3_flow_data/branch_mgmt/assets'
+);
+
+DROP TABLE IF EXISTS glue.branch_management_db.daily_operations;
+
+CREATE TABLE glue.branch_management_db.daily_operations (
+  branch_id INTEGER,
+  customers_served INTEGER,
+  operation_date VARCHAR,
+  operation_id VARCHAR,
+  operational_cost DOUBLE,
+  staff_count INTEGER,
+  transactions_processed INTEGER
+)
+WITH (
+  format = 'PARQUET',
+  external_location = 's3://ccf-psecoe-ccf-artifacts/s3_flow_data/branch_mgmt/daily_operations'
+);
+
+
+-- ==========================================================
+-- Schema: task_management_db
+-- ==========================================================
+
+CREATE SCHEMA IF NOT EXISTS glue.task_management_db;
+
+DROP TABLE IF EXISTS glue.task_management_db.tasks;
+
+CREATE TABLE glue.task_management_db.tasks (
+  assigned_to INTEGER,
+  branch_id INTEGER,
+  created_at VARCHAR,
+  due_date VARCHAR,
+  priority VARCHAR,
+  project_id INTEGER,
+  status VARCHAR,
+  task_id INTEGER,
+  task_name VARCHAR,
+  updated_at VARCHAR
+)
+WITH (
+  format = 'PARQUET',
+  external_location = 's3://ccf-psecoe-ccf-artifacts/s3_flow_data/task_mgmt/tasks'
+);
+
+
+-- ==========================================================
+-- Schema: footfalldb
+-- ==========================================================
+
+CREATE SCHEMA IF NOT EXISTS glue.footfalldb;
+
+DROP TABLE IF EXISTS glue.footfalldb.footfallsummaryy;
+
+CREATE TABLE glue.footfalldb.footfallsummaryy (
+  SummaryID INTEGER,
+  BranchID INTEGER,
+  Record_Date VARCHAR,
+  TotalFootfall INTEGER,
+  TotalExit INTEGER,
+  NetFootfall INTEGER,
+  PeakHour VARCHAR,
+  OffPeakHour VARCHAR
+)
+WITH (
+  format = 'PARQUET',
+  external_location = 's3://ccf-psecoe-ccf-artifacts/s3_flow_data/footfalldb/footfallsummary'
+);
